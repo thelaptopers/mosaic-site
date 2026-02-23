@@ -1,20 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Laptop Comparison</title>
+<title>Mosaic Portrait Maker</title>
+
+<style>
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#6a11cb,#2575fc);
+color:white;
+text-align:center;
+padding:30px;
+}
+
+.container{
+background:white;
+color:black;
+padding:20px;
+border-radius:15px;
+max-width:500px;
+margin:auto;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+button{
+background:#2575fc;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+canvas{
+margin-top:20px;
+border:1px solid #ddd;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Laptop Comparison Tool</h1>
+<h1>🎨 Mosaic Portrait Generator</h1>
 
-<select id="brand">
-  <option value="hp">HP</option>
-  <option value="dell">Dell</option>
-  <option value="asus">Asus VivoBook</option>
-</select>
+<div class="container">
 
-<p>Select a laptop to see details.</p>
+<p>Upload a photo and create a grid mosaic.</p>
+
+<input type="file" id="upload">
+
+<br><br>
+
+<button onclick="generate()">Generate Mosaic</button>
+
+<br>
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+<script>
+
+function generate(){
+
+const file = document.getElementById("upload").files[0];
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const img = new Image();
+
+img.onload = function(){
+
+canvas.width = 300;
+canvas.height = 300;
+
+ctx.drawImage(img,0,0,300,300);
+
+let size = 15;
+
+for(let y=0;y<300;y+=size){
+for(let x=0;x<300;x+=size){
+
+let data = ctx.getImageData(x,y,1,1).data;
+
+ctx.fillStyle = `rgb(${data[0]},${data[1]},${data[2]})`;
+ctx.fillRect(x,y,size,size);
+
+}
+
+}
+
+}
+
+img.src = URL.createObjectURL(file);
+
+}
+
+</script>
 
 </body>
 </html>
