@@ -1,55 +1,58 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Face Mosaic Generator</title>
+<title>AI Mosaic Portrait</title>
 
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
 
 <style>
+
 body{
+margin:0;
 background:#0f0f0f;
-color:white;
 font-family:Arial;
+color:white;
 text-align:center;
-padding:30px;
 }
 
 .container{
-background:#1c1c1c;
-padding:25px;
-border-radius:15px;
-max-width:800px;
+max-width:900px;
 margin:auto;
+padding:30px;
 }
 
 button{
-padding:12px 20px;
+padding:12px 18px;
 border:none;
-border-radius:8px;
-background:#4f7cff;
+background:#4c6fff;
 color:white;
-margin-top:10px;
+border-radius:8px;
 cursor:pointer;
+margin-top:10px;
 }
 
 canvas{
 margin-top:20px;
 max-width:100%;
+background:white;
 }
+
 </style>
 </head>
 
 <body>
 
-<h1>AI Face Mosaic</h1>
-
 <div class="container">
 
+<h1>Portrait Mosaic Generator</h1>
+
 <input type="file" id="upload">
+
 <br>
-<button onclick="start()">Generate Portrait</button>
+
+<button onclick="generate()">Generate Portrait</button>
+<button onclick="download()">Download</button>
 
 <br>
 
@@ -59,55 +62,71 @@ max-width:100%;
 
 <script>
 
-async function start(){
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
 
-const file = document.getElementById("upload").files[0];
-if(!file) return;
+async function generate(){
 
-const img = new Image();
-img.src = URL.createObjectURL(file);
+const file = document.getElementById("upload").files[0]
+if(!file) return
 
-await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/weights')
+await faceapi.nets.tinyFaceDetector.loadFromUri("https://justadudewhohacks.github.io/face-api.js/models")
+
+const img = new Image()
+img.src = URL.createObjectURL(file)
 
 img.onload = async function(){
 
 const detection = await faceapi.detectSingleFace(img,new faceapi.TinyFaceDetectorOptions())
 
+if(!detection){
+alert("Face not detected")
+return
+}
+
 const box = detection.box
 
-const canvas = document.getElementById("canvas")
-const ctx = canvas.getContext("2d")
+const size = 2
+const resolution = 1600
 
-canvas.width = 2000
-canvas.height =2000
+canvas.width = resolution
+canvas.height = resolution
 
 ctx.drawImage(
 img,
 box.x,box.y,box.width,box.height,
-0,0,1000,1000
+0,0,resolution,resolution
 )
 
-let size = 1
-
-for(let y=0;y<1000;y+=size){
-for(let x=0;x<1000;x+=size){
+for(let y=0;y<resolution;y+=size){
+for(let x=0;x<resolution;x+=size){
 
 let p = ctx.getImageData(x,y,1,1).data
-let avg = (p[0]+p[1]+p[2])/3
+let gray = (p[0]+p[1]+p[2])/3
 
-let color = avg>120 ? 255 : 0
+let color = gray>120 ? 255 : 0
 
 ctx.fillStyle = `rgb(${color},${color},${color})`
 ctx.fillRect(x,y,size,size)
 
 }
+
 }
 
 }
+
+}
+
+function download(){
+
+const link = document.createElement("a")
+link.download = "portrait.png"
+link.href = canvas.toDataURL()
+link.click()
 
 }
 
 </script>
 
 </body>
-</html
+</html>
